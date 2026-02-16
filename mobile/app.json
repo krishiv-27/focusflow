@@ -11,6 +11,7 @@
       "backgroundColor": "#0B0B1E"
     },
     "assetBundlePatterns": ["**/*"],
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.focusflow.app",
