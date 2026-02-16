@@ -1,73 +1,43 @@
-# FocusFlow - Product Requirements Document
+# FocusFlow - Product Requirements Document v2
 
 ## Overview
-FocusFlow is an AI-powered adaptive study system designed for high school students (especially those with ADHD or burnout). It breaks overwhelming assignments into small actionable tasks and gamifies productivity.
+FocusFlow is an AI-powered adaptive study system. Redesigned with Monk-style dark UI aesthetic.
 
-## Tech Stack
-- Next.js 14 (App Router)
-- Tailwind CSS with custom dark theme
-- shadcn/ui components
-- Client-side state with localStorage
-- canvas-confetti for animations
+## Design System
+- **Background**: Pure dark (#080810)
+- **Primary**: Purple (#8B5CF6)
+- **Glowing Orbs**: Signature visual element
+- **Particles**: Floating background particles
+- **Style**: Monk-app inspired, minimal, dark, Gen Z focused
+- **Brain Logo**: Used throughout as brand identity
 
-## Features Implemented
+## Features (Web + React Native)
 
-### 1. Landing Page
-- Gradient background (purple/blue)
-- "Study Smarter. Not Harder." headline
-- CTA: "Start Focusing"
-- Feature icons (AI Tasks, Focus Mode, Gamified)
-- Floating decorative orbs
+### Auth Flow (MOCKED)
+- Welcome screen with glowing orb + "Focus on your mission"
+- Login with Google / Apple / Guest
+- Multi-step onboarding (study hours slider, goals selection, age)
+- AI loading animation with percentage
+- Impact statement ("6 hours you could save")
 
-### 2. Onboarding
-- Name entry with smooth transition
-- Stored in localStorage
+### Dashboard
+- Glowing brain orb with level indicator
+- "Deep Work" card with Start Focus button
+- Stats grid (Done, Streak, Badges)
+- XP progress bar
+- Bottom tab navigation (Home, +Add, Tasks, Profile)
 
-### 3. Dashboard
-- Personalized greeting with time of day
-- XP bar with level indicator
-- Focus streak counter
-- Stats grid (Completed, Day Streak, Badges)
-- Badge display
-- Daily tasks list with difficulty/XP labels
-- Add Task button with AI breakdown
+### AI Task Breakdown
+- 10 task categories with keyword scoring
+- Generates contextual micro-tasks
+- Time estimates, difficulty, XP rewards
 
-### 4. AI Task Breakdown
-- Client-side rule-based "AI" that detects task type
-- Supports: study, read, write, project, math, default
-- Generates 3-5 micro-tasks with title, estimated time, difficulty, XP reward
-- Also available via POST /api/tasks/breakdown API
+### Focus Mode
+- Timer inside glowing orb with progress ring
+- Burnout detection (3+ pauses or 2+ idle)
+- Micro-break suggestions
+- Bonus XP for pushing through
 
-### 5. Focus Mode
-- Pomodoro-style countdown timer
-- SVG progress ring animation
-- Start/Pause/Done controls
-- "Feeling distracted?" button
-- "Take micro-break" button
-- Task completion celebration with confetti
-
-### 6. Burnout Detection
-- Tracks pause count and idle reports
-- Triggers after 3+ pauses or 2+ idle reports
-- Offers: reduce time + bonus XP
-- Micro-break suggestion modal
-
-### 7. Gamification
-- XP system (+10 to +40 per task)
-- Level system (every 100 XP)
-- Daily streak tracking
-- Badge system: Starter, Focused (100XP), On Fire (3-day streak), Elite (500XP), Grinder (1000XP)
-- Confetti animation on level up and task completion
-
-## API Endpoints
-- GET /api/health - Health check
-- POST /api/tasks/breakdown - AI task breakdown
-- OPTIONS /api/* - CORS preflight
-
-## Design
-- Dark mode default
-- Soft blue/purple gradients
-- Rounded 2xl corners
-- Clean Inter typography
-- Mobile-first responsive
-- Smooth animations (fade, slide, scale)
+### Gamification
+- XP, levels (100 XP/level), streaks, 5+ badges
+- Confetti on completion and level up
