@@ -5,9 +5,28 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '../../contexts/AppContext';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, BADGES } from '../../lib/constants';
+
+// Map badge icon strings to actual icon components
+const BADGE_ICONS = {
+  star: { family: 'Ionicons', name: 'star' },
+  target: { family: 'Ionicons', name: 'locate' },
+  flame: { family: 'Ionicons', name: 'flame' },
+  award: { family: 'Ionicons', name: 'ribbon' },
+  crown: { family: 'MaterialCommunityIcons', name: 'crown' },
+  shield: { family: 'Ionicons', name: 'shield' },
+  zap: { family: 'Ionicons', name: 'flash' },
+};
+
+function BadgeIconComponent({ iconName, size, color }) {
+  const config = BADGE_ICONS[iconName] || { family: 'Ionicons', name: 'star' };
+  if (config.family === 'MaterialCommunityIcons') {
+    return <MaterialCommunityIcons name={config.name} size={size} color={color} />;
+  }
+  return <Ionicons name={config.name} size={size} color={color} />;
+}
 
 export default function ProfileScreen() {
   const { state, logout } = useApp();
@@ -39,10 +58,7 @@ export default function ProfileScreen() {
   const totalFocusMins = (profile.totalFocusMinutes || 0) % 60;
 
   return (
-    <LinearGradient
-      colors={[COLORS.background, '#0d0d25', COLORS.background]}
-      style={styles.gradient}
-    >
+    <View style={styles.container}>
       <SafeAreaView style={styles.safe}>
         <ScrollView
           style={styles.scroll}
@@ -104,11 +120,11 @@ export default function ProfileScreen() {
                       colors={earned ? badge.colors : ['#333', '#444']}
                       style={styles.badgeIcon}
                     >
-                      <Ionicons
-                        name={earned ? badge.icon : 'lock-closed'}
-                        size={20}
-                        color={earned ? '#fff' : 'rgba(255,255,255,0.3)'}
-                      />
+                      {earned ? (
+                        <BadgeIconComponent iconName={badge.icon} size={20} color="#fff" />
+                      ) : (
+                        <Ionicons name="lock-closed" size={20} color="rgba(255,255,255,0.3)" />
+                      )}
                     </LinearGradient>
                     <Text style={[styles.badgeName, !earned && styles.badgeNameLocked]}>
                       {badge.name}
@@ -153,12 +169,12 @@ export default function ProfileScreen() {
           <View style={{ height: 120 }} />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#080810' },
   safe: { flex: 1 },
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xxl },
@@ -221,7 +237,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: BORDER_RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.06)',
     padding: SPACING.lg,
     alignItems: 'center',
     gap: SPACING.xs,
@@ -283,7 +299,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.lg,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(255,255,255,0.06)',
     gap: SPACING.md,
   },
   settingLabel: {

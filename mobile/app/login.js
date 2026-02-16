@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '../contexts/AppContext';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../lib/constants';
 
@@ -56,7 +56,7 @@ export default function LoginScreen() {
         <View style={styles.content}>
           {/* Logo */}
           <View style={styles.logoRow}>
-            <Ionicons name="brain" size={18} color={COLORS.primaryLight} />
+            <MaterialCommunityIcons name="brain" size={18} color={COLORS.primaryLight} />
             <Text style={styles.logoText}>FOCUSFLOW</Text>
           </View>
 
@@ -64,7 +64,7 @@ export default function LoginScreen() {
           <Animated.View style={[styles.orbContainer, { transform: [{ translateY: floatAnim }] }]}>
             <View style={styles.orbGlow} />
             <View style={styles.orbInner}>
-              <Ionicons name="brain" size={48} color={COLORS.primaryLight} />
+              <MaterialCommunityIcons name="brain" size={48} color={COLORS.primaryLight} />
             </View>
           </Animated.View>
 
@@ -97,7 +97,7 @@ export default function LoginScreen() {
             {loading === 'google' ? (
               <Ionicons name="reload" size={20} color="#fff" />
             ) : (
-              <Text style={{ fontSize: 18 }}>🌐</Text>
+              <Ionicons name="globe-outline" size={20} color="#fff" />
             )}
             <Text style={styles.googleBtnText}>Continue with Google</Text>
           </TouchableOpacity>

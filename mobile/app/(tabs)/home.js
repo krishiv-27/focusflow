@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '../../contexts/AppContext';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, BADGES, DIFFICULTY_CONFIG } from '../../lib/constants';
 import TaskCard from '../../components/TaskCard';
@@ -42,7 +42,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoRow}>
-            <Ionicons name="brain" size={18} color={COLORS.primaryLight} />
+            <MaterialCommunityIcons name="brain" size={18} color={COLORS.primaryLight} />
             <Text style={styles.logoText}>FOCUSFLOW</Text>
           </View>
           <View style={styles.streakBadge}>
@@ -63,7 +63,7 @@ export default function HomeScreen() {
           <View style={styles.orbSection}>
             <View style={styles.orbGlow} />
             <View style={styles.orbInner}>
-              <Ionicons name="brain" size={40} color={COLORS.primaryLight} />
+              <MaterialCommunityIcons name="brain" size={40} color={COLORS.primaryLight} />
               <Text style={styles.orbLabel}>Level {profile.level}</Text>
             </View>
           </View>

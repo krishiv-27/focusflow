@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, BORDER_RADIUS } from '../../lib/constants';
 
 export default function TabsLayout() {
@@ -10,7 +10,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: 'rgba(15, 15, 30, 0.95)',
+          backgroundColor: 'rgba(8, 8, 16, 0.95)',
           borderTopColor: 'rgba(255,255,255,0.05)',
           borderTopWidth: 1,
           height: Platform.OS === 'ios' ? 88 : 65,
@@ -32,8 +32,8 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={22} color={color} />
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="brain" size={22} color={color} />
           ),
         }}
       />
@@ -52,7 +52,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={22} color={color} />
           ),
         }}

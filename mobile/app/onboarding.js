@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  SafeAreaView, Keyboard, Animated, KeyboardAvoidingView, Platform,
+  SafeAreaView, ScrollView, Animated, KeyboardAvoidingView,
+  Platform, Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '../contexts/AppContext';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../lib/constants';
 
@@ -30,7 +31,6 @@ export default function OnboardingScreen() {
       }),
     ]).start();
 
-    // Pre-fill name from auth if available
     if (state.profile.name && state.profile.name !== 'Student') {
       setName(state.profile.name);
     }
@@ -45,11 +45,8 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#0f0c29', '#1a1145', '#1e1450', '#0f172a']}
-      style={styles.gradient}
-    >
-      <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safe}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.inner}
@@ -67,7 +64,7 @@ export default function OnboardingScreen() {
               colors={[COLORS.primary, COLORS.secondary]}
               style={styles.iconContainer}
             >
-              <Ionicons name="sparkles" size={36} color="#fff" />
+              <MaterialCommunityIcons name="brain" size={36} color="#fff" />
             </LinearGradient>
 
             <Text style={styles.title}>Welcome to FocusFlow</Text>
@@ -111,13 +108,13 @@ export default function OnboardingScreen() {
           </Animated.View>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#080810' },
+  safe: { flex: 1 },
   inner: { flex: 1, justifyContent: 'center', paddingHorizontal: SPACING.xxl },
   content: { alignItems: 'center' },
   iconContainer: {

@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '../../contexts/AppContext';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, DIFFICULTY_CONFIG } from '../../lib/constants';
 import { generateMicroTasks, getTaskTypeInfo } from '../../lib/taskAI';
@@ -26,18 +26,15 @@ export default function AddTaskScreen() {
     setIsGenerating(true);
     setGeneratedTasks([]);
 
-    // Get task type info
     const typeInfo = getTaskTypeInfo(taskInput);
     setTaskTypeInfo(typeInfo);
 
-    // Simulate AI processing
     await new Promise((r) => setTimeout(r, 1000));
 
     const tasks = generateMicroTasks(taskInput.trim());
     setGeneratedTasks(tasks);
     setIsGenerating(false);
 
-    // Animate in
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -70,10 +67,7 @@ export default function AddTaskScreen() {
   ];
 
   return (
-    <LinearGradient
-      colors={[COLORS.background, '#0d0d25', COLORS.background]}
-      style={styles.gradient}
-    >
+    <View style={styles.container}>
       <SafeAreaView style={styles.safe}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -88,7 +82,7 @@ export default function AddTaskScreen() {
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerIcon}>
-                <Ionicons name="sparkles" size={20} color={COLORS.primary} />
+                <MaterialCommunityIcons name="creation" size={20} color={COLORS.primary} />
               </View>
               <Text style={styles.headerTitle}>AI Task Breakdown</Text>
               <Text style={styles.headerSubtitle}>
@@ -125,8 +119,8 @@ export default function AddTaskScreen() {
                   end={{ x: 1, y: 0 }}
                   style={styles.generateBtn}
                 >
-                  <Ionicons
-                    name={isGenerating ? 'reload' : 'sparkles'}
+                  <MaterialCommunityIcons
+                    name={isGenerating ? 'loading' : 'creation'}
                     size={18}
                     color={taskInput.trim() ? '#fff' : 'rgba(255,255,255,0.2)'}
                   />
@@ -240,12 +234,12 @@ export default function AddTaskScreen() {
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#080810' },
   safe: { flex: 1 },
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.xxl },
@@ -318,7 +312,7 @@ const styles = StyleSheet.create({
   suggestionChip: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.06)',
     borderRadius: BORDER_RADIUS.full,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
@@ -374,7 +368,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: BORDER_RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.06)',
     padding: SPACING.md,
     marginBottom: SPACING.sm,
     gap: SPACING.md,

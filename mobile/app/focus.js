@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useApp } from '../contexts/AppContext';
 import ProgressRing from '../components/ProgressRing';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, DIFFICULTY_CONFIG } from '../lib/constants';
@@ -130,10 +130,9 @@ export default function FocusScreen() {
 
   const diff = DIFFICULTY_CONFIG[task.difficulty];
 
-  // Completion screen
   if (completed) {
     return (
-      <LinearGradient colors={['#0f0c29', '#1a1145', '#0f172a']} style={styles.container}>
+      <View style={styles.container}>
         <SafeAreaView style={styles.completedContainer}>
           <Animated.View style={[styles.completedContent, { transform: [{ scale: scaleAnim }] }]}>
             <LinearGradient
@@ -160,12 +159,12 @@ export default function FocusScreen() {
             </TouchableOpacity>
           </Animated.View>
         </SafeAreaView>
-      </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <LinearGradient colors={['#0f0c29', '#1a1145', '#0f172a']} style={styles.container}>
+    <View style={styles.container}>
       <SafeAreaView style={styles.safe}>
         {/* Header */}
         <View style={styles.header}>
@@ -190,9 +189,10 @@ export default function FocusScreen() {
           {task.subtitle && <Text style={styles.taskSubtitle}>{task.subtitle}</Text>}
         </View>
 
-        {/* Timer */}
+        {/* Timer with Orb */}
         <View style={styles.timerSection}>
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+            <View style={styles.timerOrbGlow} />
             <ProgressRing radius={width * 0.3} strokeWidth={10} progress={progress}>
               <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
               <Text style={styles.progressText}>{Math.round(progress)}% complete</Text>
@@ -229,11 +229,11 @@ export default function FocusScreen() {
 
           <View style={styles.secondaryControls}>
             <TouchableOpacity onPress={handleDistracted} style={styles.secondaryBtn}>
-              <Ionicons name="alert-circle-outline" size={16} color={COLORS.textDim} />
+              <Ionicons name="alert-circle-outline" size={16} color={'rgba(255,255,255,0.2)'} />
               <Text style={styles.secondaryBtnText}>Feeling distracted?</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setIsRunning(false); setShowBreak(true); }} style={styles.secondaryBtn}>
-              <Ionicons name="cafe-outline" size={16} color={COLORS.textDim} />
+              <Ionicons name="cafe-outline" size={16} color={'rgba(255,255,255,0.2)'} />
               <Text style={styles.secondaryBtnText}>Take micro-break</Text>
             </TouchableOpacity>
           </View>
@@ -296,12 +296,12 @@ export default function FocusScreen() {
           </View>
         )}
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#080810' },
   safe: { flex: 1, paddingHorizontal: SPACING.lg },
   header: {
     flexDirection: 'row',
@@ -372,6 +372,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  timerOrbGlow: {
+    position: 'absolute',
+    width: width * 0.8,
+    height: width * 0.8,
+    borderRadius: width * 0.4,
+    backgroundColor: 'rgba(139, 92, 246, 0.05)',
+    alignSelf: 'center',
+    top: -(width * 0.1),
   },
   timerText: {
     fontSize: 48,
@@ -448,7 +457,7 @@ const styles = StyleSheet.create({
   },
   secondaryBtnText: {
     fontSize: FONT_SIZE.xs,
-    color: COLORS.textDim,
+    color: 'rgba(255,255,255,0.2)',
   },
   completedContainer: {
     flex: 1,
@@ -516,7 +525,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     width: '100%',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#12122a',
     borderRadius: BORDER_RADIUS.xxl,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
