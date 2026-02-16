@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  Alert, Platform, Dimensions,
+  Animated, Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -15,272 +15,201 @@ export default function LoginScreen() {
   const router = useRouter();
   const { setAuth } = useApp();
   const [loading, setLoading] = useState(null);
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
-  // MOCK AUTH - Replace with real OAuth credentials
-  const handleGoogleSignIn = async () => {
-    setLoading('google');
-    // Simulate auth delay
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, { toValue: -8, duration: 2500, useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: 0, duration: 2500, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  const handleAuth = async (provider) => {
+    setLoading(provider);
     await new Promise((r) => setTimeout(r, 1200));
     setAuth({
       name: 'Student',
-      email: 'student@gmail.com',
+      email: provider === 'google' ? 'student@gmail.com' : provider === 'apple' ? 'student@icloud.com' : '',
       avatar: null,
-      provider: 'google',
+      provider,
     });
     setLoading(null);
-    router.replace('/onboarding');
-  };
-
-  const handleAppleSignIn = async () => {
-    setLoading('apple');
-    await new Promise((r) => setTimeout(r, 1200));
-    setAuth({
-      name: 'Student',
-      email: 'student@icloud.com',
-      avatar: null,
-      provider: 'apple',
-    });
-    setLoading(null);
-    router.replace('/onboarding');
-  };
-
-  const handleSkip = () => {
-    setAuth({
-      name: 'Student',
-      email: '',
-      avatar: null,
-      provider: 'guest',
-    });
     router.replace('/onboarding');
   };
 
   return (
-    <LinearGradient
-      colors={['#0f0c29', '#1a1145', '#1e1450', '#0f172a']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
-    >
-      <SafeAreaView style={styles.container}>
-        {/* Decorative circles */}
-        <View style={[styles.orb, styles.orb1]} />
-        <View style={[styles.orb, styles.orb2]} />
+    <View style={styles.container}>
+      {/* Particles */}
+      {Array.from({ length: 15 }).map((_, i) => (
+        <View key={i} style={[styles.particle, {
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          width: 1 + Math.random() * 2,
+          height: 1 + Math.random() * 2,
+          opacity: 0.1 + Math.random() * 0.15,
+        }]} />
+      ))}
 
+      <SafeAreaView style={styles.safe}>
         <View style={styles.content}>
           {/* Logo */}
-          <View style={styles.logoContainer}>
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.accent]}
-              style={styles.logoGradient}
-            >
-              <Ionicons name="sparkles" size={32} color="#fff" />
-            </LinearGradient>
+          <View style={styles.logoRow}>
+            <Ionicons name="brain" size={18} color={COLORS.primaryLight} />
+            <Text style={styles.logoText}>FOCUSFLOW</Text>
           </View>
 
-          {/* Heading */}
-          <Text style={styles.title}>
-            <Text style={styles.titleGradient}>Study Smarter.</Text>
-            {'\n'}
-            <Text style={styles.titleWhite}>Not Harder.</Text>
-          </Text>
+          {/* Glowing Orb */}
+          <Animated.View style={[styles.orbContainer, { transform: [{ translateY: floatAnim }] }]}>
+            <View style={styles.orbGlow} />
+            <View style={styles.orbInner}>
+              <Ionicons name="brain" size={48} color={COLORS.primaryLight} />
+            </View>
+          </Animated.View>
 
-          <Text style={styles.subtitle}>
-            AI-powered productivity that adapts to you.{' '}
-            Break big tasks into small wins.
-          </Text>
-
-          {/* Feature pills */}
-          <View style={styles.features}>
-            {[
-              { icon: 'bulb-outline', label: 'AI Tasks' },
-              { icon: 'timer-outline', label: 'Focus Mode' },
-              { icon: 'trophy-outline', label: 'Gamified' },
-            ].map((f, i) => (
-              <View key={i} style={styles.featurePill}>
-                <Ionicons name={f.icon} size={16} color={COLORS.primaryLight} />
-                <Text style={styles.featureText}>{f.label}</Text>
-              </View>
-            ))}
-          </View>
+          <Text style={styles.title}>Welcome to FocusFlow</Text>
+          <Text style={styles.subtitle}>The #1 Focus App for Students</Text>
         </View>
 
-        {/* Auth buttons */}
+        {/* Auth Buttons */}
         <View style={styles.authSection}>
-          {/* Google Sign In */}
           <TouchableOpacity
-            style={styles.authBtn}
-            onPress={handleGoogleSignIn}
+            style={styles.appleBtn}
+            onPress={() => handleAuth('apple')}
             disabled={loading !== null}
             activeOpacity={0.8}
           >
-            <View style={styles.authBtnContent}>
-              {loading === 'google' ? (
-                <View style={styles.authIcon}>
-                  <Ionicons name="reload" size={20} color="#fff" />
-                </View>
-              ) : (
-                <View style={[styles.authIcon, { backgroundColor: '#fff' }]}>
-                  <Text style={{ fontSize: 18 }}>🌐</Text>
-                </View>
-              )}
-              <Text style={styles.authBtnText}>
-                {loading === 'google' ? 'Signing in...' : 'Continue with Google'}
-              </Text>
-            </View>
+            {loading === 'apple' ? (
+              <Ionicons name="reload" size={20} color="#000" />
+            ) : (
+              <Ionicons name="logo-apple" size={22} color="#000" />
+            )}
+            <Text style={styles.appleBtnText}>Continue with Apple</Text>
           </TouchableOpacity>
 
-          {/* Apple Sign In */}
-          {Platform.OS === 'ios' || true ? (
-            <TouchableOpacity
-              style={[styles.authBtn, styles.appleBtnStyle]}
-              onPress={handleAppleSignIn}
-              disabled={loading !== null}
-              activeOpacity={0.8}
-            >
-              <View style={styles.authBtnContent}>
-                {loading === 'apple' ? (
-                  <View style={styles.authIcon}>
-                    <Ionicons name="reload" size={20} color="#fff" />
-                  </View>
-                ) : (
-                  <View style={styles.authIcon}>
-                    <Ionicons name="logo-apple" size={22} color="#fff" />
-                  </View>
-                )}
-                <Text style={styles.authBtnText}>
-                  {loading === 'apple' ? 'Signing in...' : 'Continue with Apple'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ) : null}
-
-          {/* Skip */}
           <TouchableOpacity
-            onPress={handleSkip}
-            style={styles.skipBtn}
+            style={styles.googleBtn}
+            onPress={() => handleAuth('google')}
             disabled={loading !== null}
+            activeOpacity={0.8}
+          >
+            {loading === 'google' ? (
+              <Ionicons name="reload" size={20} color="#fff" />
+            ) : (
+              <Text style={{ fontSize: 18 }}>🌐</Text>
+            )}
+            <Text style={styles.googleBtnText}>Continue with Google</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => handleAuth('guest')}
+            disabled={loading !== null}
+            style={styles.skipBtn}
           >
             <Text style={styles.skipText}>Continue as Guest</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   container: {
     flex: 1,
-    paddingHorizontal: SPACING.xxl,
+    backgroundColor: '#080810',
   },
-  orb: {
+  safe: { flex: 1, paddingHorizontal: SPACING.xxl },
+  particle: {
     position: 'absolute',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 999,
-  },
-  orb1: {
-    width: 300,
-    height: 300,
-    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    top: -50,
-    left: -80,
-  },
-  orb2: {
-    width: 400,
-    height: 400,
-    backgroundColor: 'rgba(59, 130, 246, 0.06)',
-    bottom: -100,
-    right: -120,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoContainer: {
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginBottom: SPACING.xxxl,
   },
-  logoGradient: {
-    width: 64,
-    height: 64,
-    borderRadius: BORDER_RADIUS.xl,
+  logoText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: FONT_SIZE.sm,
+    letterSpacing: 3,
+  },
+  orbContainer: {
+    width: 180,
+    height: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.xxxl,
+  },
+  orbGlow: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
+  },
+  orbInner: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(139, 92, 246, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 38,
-    fontWeight: '800',
-    textAlign: 'center',
-    lineHeight: 46,
-    marginBottom: SPACING.lg,
-  },
-  titleGradient: {
-    color: COLORS.primaryLight,
-  },
-  titleWhite: {
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: FONT_SIZE.xxl,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: SPACING.sm,
   },
   subtitle: {
-    fontSize: FONT_SIZE.lg,
-    color: 'rgba(255,255,255,0.4)',
-    textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
-    marginBottom: SPACING.xxxl,
-  },
-  features: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-  },
-  featurePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: BORDER_RADIUS.xl,
-  },
-  featureText: {
-    fontSize: FONT_SIZE.xs,
-    color: 'rgba(255,255,255,0.35)',
+    fontSize: FONT_SIZE.md,
+    color: 'rgba(255,255,255,0.3)',
   },
   authSection: {
     paddingBottom: SPACING.xxxl,
     gap: SPACING.md,
   },
-  authBtn: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: BORDER_RADIUS.xl,
+  appleBtn: {
     height: 56,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    justifyContent: 'center',
-  },
-  appleBtnStyle: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  authBtnContent: {
+    borderRadius: BORDER_RADIUS.xl,
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: SPACING.md,
   },
-  authIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  authBtnText: {
+  appleBtnText: {
     fontSize: FONT_SIZE.lg,
     fontWeight: '600',
-    color: COLORS.text,
+    color: '#000',
+  },
+  googleBtn: {
+    height: 56,
+    borderRadius: BORDER_RADIUS.xl,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.md,
+  },
+  googleBtnText: {
+    fontSize: FONT_SIZE.lg,
+    fontWeight: '600',
+    color: '#fff',
   },
   skipBtn: {
     alignItems: 'center',
@@ -288,6 +217,6 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: FONT_SIZE.md,
-    color: 'rgba(255,255,255,0.3)',
+    color: 'rgba(255,255,255,0.25)',
   },
 });

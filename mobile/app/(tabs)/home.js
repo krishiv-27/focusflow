@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, SafeAreaView,
-  TouchableOpacity, RefreshControl, Dimensions, Platform,
+  TouchableOpacity, RefreshControl, Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -9,8 +9,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../../contexts/AppContext';
 import { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, BADGES, DIFFICULTY_CONFIG } from '../../lib/constants';
 import TaskCard from '../../components/TaskCard';
-
-const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const { state, completeTask, addXP } = useApp();
@@ -26,18 +24,6 @@ export default function HomeScreen() {
     return profile.xp >= b.requirement;
   });
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 500);
-  }, []);
-
   const handleCompleteTask = (taskId) => {
     const task = tasks.find((t) => t.id === taskId);
     if (task) {
@@ -51,47 +37,97 @@ export default function HomeScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={[COLORS.background, '#0d0d25', COLORS.background]}
-      style={styles.gradient}
-    >
+    <View style={styles.container}>
       <SafeAreaView style={styles.safe}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.logoRow}>
+            <Ionicons name="brain" size={18} color={COLORS.primaryLight} />
+            <Text style={styles.logoText}>FOCUSFLOW</Text>
+          </View>
+          <View style={styles.streakBadge}>
+            <Ionicons name="flame" size={14} color={COLORS.warning} />
+            <Text style={styles.streakNum}>{profile.streak}</Text>
+          </View>
+        </View>
+
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+            <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); setTimeout(() => setRefreshing(false), 500); }} tintColor={COLORS.primary} />
           }
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <View>
-              <Text style={styles.greetingText}>{getGreeting()}</Text>
-              <Text style={styles.nameText}>{profile.name} ✨</Text>
-            </View>
-            <View style={styles.streakBadge}>
-              <Ionicons name="flame" size={16} color={COLORS.warning} />
-              <Text style={styles.streakText}>{profile.streak}</Text>
+          {/* Glowing Orb */}
+          <View style={styles.orbSection}>
+            <View style={styles.orbGlow} />
+            <View style={styles.orbInner}>
+              <Ionicons name="brain" size={40} color={COLORS.primaryLight} />
+              <Text style={styles.orbLabel}>Level {profile.level}</Text>
             </View>
           </View>
 
-          {/* XP Card */}
-          <View style={styles.xpCard}>
-            <View style={styles.xpHeader}>
-              <View style={styles.xpLeft}>
-                <LinearGradient
-                  colors={[COLORS.primary, COLORS.accent]}
-                  style={styles.xpIcon}
+          {/* Deep Work Card */}
+          <View style={styles.deepWorkCard}>
+            <View style={styles.deepWorkHeader}>
+              <Text style={styles.deepWorkTitle}>Deep Work</Text>
+              <View style={styles.xpBadge}>
+                <Ionicons name="flash" size={12} color={COLORS.primary} />
+                <Text style={styles.xpBadgeText}>{profile.xp} XP</Text>
+              </View>
+            </View>
+            <Text style={styles.deepWorkSub}>Today's focus session</Text>
+
+            {pendingTasks.length > 0 ? (
+              <View style={styles.focusBtnRow}>
+                <TouchableOpacity
+                  onPress={() => handleFocus(pendingTasks[0])}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="flash" size={16} color="#fff" />
-                </LinearGradient>
-                <View>
-                  <Text style={styles.xpLevelText}>Level {profile.level}</Text>
-                  <Text style={styles.xpValueText}>{profile.xp} XP</Text>
+                  <LinearGradient
+                    colors={[COLORS.primary, COLORS.primaryDark]}
+                    style={styles.startFocusBtn}
+                  >
+                    <Ionicons name="play" size={16} color="#fff" />
+                    <Text style={styles.startFocusBtnText}>Start Focus</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+                <View style={styles.timeChip}>
+                  <Text style={styles.timeChipText}>{pendingTasks[0].estimatedTime}m</Text>
                 </View>
               </View>
-              <Text style={styles.xpPercentText}>{Math.round(xpProgress)}% to Level {profile.level + 1}</Text>
+            ) : (
+              <TouchableOpacity
+                onPress={() => router.push('/(tabs)/add')}
+                style={styles.addTaskBtn}
+              >
+                <Ionicons name="add" size={18} color="rgba(255,255,255,0.3)" />
+                <Text style={styles.addTaskBtnText}>Add a Task to Start</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Stats */}
+          <View style={styles.statsRow}>
+            {[
+              { icon: 'checkmark-circle', color: COLORS.success, value: profile.tasksCompleted, label: 'DONE' },
+              { icon: 'flame', color: COLORS.warning, value: profile.streak, label: 'STREAK' },
+              { icon: 'trophy', color: '#FBBF24', value: earnedBadges.length, label: 'BADGES' },
+            ].map((stat, i) => (
+              <View key={i} style={styles.statCard}>
+                <Ionicons name={stat.icon} size={16} color={stat.color} />
+                <Text style={styles.statValue}>{stat.value}</Text>
+                <Text style={styles.statLabel}>{stat.label}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* XP Bar */}
+          <View style={styles.xpBarCard}>
+            <View style={styles.xpBarHeader}>
+              <Text style={styles.xpBarLabel}>Level {profile.level}</Text>
+              <Text style={styles.xpBarPercent}>{Math.round(xpProgress)}%</Text>
             </View>
             <View style={styles.xpBarBg}>
               <LinearGradient
@@ -103,96 +139,34 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Stats */}
-          <View style={styles.statsRow}>
-            {[
-              { icon: 'checkmark-circle', color: COLORS.success, value: profile.tasksCompleted, label: 'Completed' },
-              { icon: 'flame', color: COLORS.warning, value: profile.streak, label: 'Day Streak' },
-              { icon: 'trophy', color: '#FBBF24', value: earnedBadges.length, label: 'Badges' },
-            ].map((stat, i) => (
-              <View key={i} style={styles.statCard}>
-                <Ionicons name={stat.icon} size={20} color={stat.color} />
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Badges */}
-          {earnedBadges.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Your Badges</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={styles.badgesRow}>
-                  {earnedBadges.map((badge) => (
-                    <LinearGradient
-                      key={badge.id}
-                      colors={badge.colors}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.badgeChip}
-                    >
-                      <Ionicons name={badge.icon} size={14} color="#fff" />
-                      <Text style={styles.badgeText}>{badge.name}</Text>
-                    </LinearGradient>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-          )}
-
-          {/* Tasks */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Today's Tasks</Text>
-              <Text style={styles.sectionCount}>{pendingTasks.length} remaining</Text>
-            </View>
-
-            {pendingTasks.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Ionicons name="bulb-outline" size={40} color="rgba(139, 92, 246, 0.3)" />
-                <Text style={styles.emptyTitle}>No tasks yet</Text>
-                <Text style={styles.emptySubtitle}>Tap + to add a task</Text>
-              </View>
-            ) : (
-              pendingTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onComplete={handleCompleteTask}
-                  onFocus={handleFocus}
-                />
-              ))
-            )}
-          </View>
-
-          <View style={{ height: 100 }} />
+          <View style={{ height: 120 }} />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#080810' },
   safe: { flex: 1 },
-  scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.lg },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: SPACING.xxl,
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.sm,
   },
-  greetingText: {
-    fontSize: FONT_SIZE.sm,
-    color: COLORS.textMuted,
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  nameText: {
-    fontSize: FONT_SIZE.xxl,
+  logoText: {
+    color: '#fff',
     fontWeight: '700',
-    color: COLORS.text,
-    marginTop: 2,
+    fontSize: FONT_SIZE.sm,
+    letterSpacing: 3,
   },
   streakBadge: {
     flexDirection: 'row',
@@ -201,75 +175,140 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245, 158, 11, 0.1)',
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.2)',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: BORDER_RADIUS.full,
   },
-  streakText: {
-    fontSize: FONT_SIZE.md,
+  streakNum: {
+    fontSize: FONT_SIZE.sm,
     fontWeight: '700',
     color: COLORS.warning,
   },
-  xpCard: {
-    backgroundColor: 'rgba(139, 92, 246, 0.08)',
-    borderRadius: BORDER_RADIUS.xxl,
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.15)',
-    padding: SPACING.xl,
-    marginBottom: SPACING.lg,
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: SPACING.lg },
+  orbSection: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xxl,
   },
-  xpHeader: {
+  orbGlow: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(139, 92, 246, 0.06)',
+    top: 0,
+  },
+  orbInner: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  orbLabel: {
+    fontSize: FONT_SIZE.xs,
+    color: 'rgba(255,255,255,0.3)',
+  },
+  deepWorkCard: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: BORDER_RADIUS.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    padding: SPACING.xl,
+    marginBottom: SPACING.md,
+  },
+  deepWorkHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: 4,
   },
-  xpLeft: {
+  deepWorkTitle: {
+    fontSize: FONT_SIZE.xl,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  xpBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
+    gap: 4,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.full,
   },
-  xpIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: BORDER_RADIUS.md,
+  xpBadgeText: {
+    fontSize: FONT_SIZE.xs,
+    fontWeight: '600',
+    color: COLORS.primaryLight,
+  },
+  deepWorkSub: {
+    fontSize: FONT_SIZE.sm,
+    color: 'rgba(255,255,255,0.3)',
+    marginBottom: SPACING.lg,
+  },
+  focusBtnRow: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  startFocusBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    height: 48,
+    paddingHorizontal: SPACING.xxl,
+    borderRadius: BORDER_RADIUS.lg,
+  },
+  startFocusBtnText: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  timeChip: {
+    height: 48,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
+    backgroundColor: 'rgba(255,255,255,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  xpLevelText: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.textMuted,
-  },
-  xpValueText: {
+  timeChipText: {
     fontSize: FONT_SIZE.md,
-    fontWeight: '700',
-    color: COLORS.text,
+    color: 'rgba(255,255,255,0.5)',
   },
-  xpPercentText: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.textMuted,
+  addTaskBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    height: 48,
+    borderRadius: BORDER_RADIUS.lg,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: 'rgba(255,255,255,0.08)',
   },
-  xpBarBg: {
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    overflow: 'hidden',
-  },
-  xpBarFill: {
-    height: '100%',
-    borderRadius: 5,
+  addTaskBtnText: {
+    fontSize: FONT_SIZE.sm,
+    color: 'rgba(255,255,255,0.3)',
   },
   statsRow: {
     flexDirection: 'row',
-    gap: SPACING.md,
-    marginBottom: SPACING.xxl,
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
   },
   statCard: {
     flex: 1,
     backgroundColor: 'rgba(255,255,255,0.03)',
-    borderRadius: BORDER_RADIUS.xl,
+    borderRadius: BORDER_RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(255,255,255,0.06)',
     padding: SPACING.md,
     alignItems: 'center',
     gap: 4,
@@ -277,67 +316,42 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FONT_SIZE.xl,
     fontWeight: '700',
-    color: COLORS.text,
-  },
-  statLabel: {
-    fontSize: 9,
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  section: {
-    marginBottom: SPACING.xxl,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  sectionTitle: {
-    fontSize: FONT_SIZE.md,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.md,
-  },
-  sectionCount: {
-    fontSize: FONT_SIZE.xs,
-    color: COLORS.textMuted,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    paddingRight: SPACING.lg,
-  },
-  badgeChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: BORDER_RADIUS.full,
-  },
-  badgeText: {
-    fontSize: FONT_SIZE.xs,
-    fontWeight: '600',
     color: '#fff',
   },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: SPACING.huge,
-    borderRadius: BORDER_RADIUS.xxl,
+  statLabel: {
+    fontSize: 8,
+    color: 'rgba(255,255,255,0.25)',
+    letterSpacing: 1,
+    fontWeight: '600',
+  },
+  xpBarCard: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: BORDER_RADIUS.lg,
     borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.06)',
+    padding: SPACING.lg,
   },
-  emptyTitle: {
-    fontSize: FONT_SIZE.md,
-    color: COLORS.textMuted,
-    marginTop: SPACING.md,
+  xpBarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
-  emptySubtitle: {
-    fontSize: FONT_SIZE.sm,
-    color: COLORS.textDim,
-    marginTop: 4,
+  xpBarLabel: {
+    fontSize: FONT_SIZE.xs,
+    color: 'rgba(255,255,255,0.3)',
+  },
+  xpBarPercent: {
+    fontSize: FONT_SIZE.xs,
+    color: 'rgba(255,255,255,0.15)',
+  },
+  xpBarBg: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    overflow: 'hidden',
+  },
+  xpBarFill: {
+    height: '100%',
+    borderRadius: 4,
   },
 });
